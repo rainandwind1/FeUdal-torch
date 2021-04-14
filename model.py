@@ -142,13 +142,13 @@ class FeUdal(nn.Module):
             s_vec = torch.FloatTensor(self.ep_state_ls[i]).to(self.device)
             loss_critic_m = G_ls[i] - self.manager.critic(s_vec)
             loss_policy_m = -loss_critic_m.detach() * self.d_cos((self.ep_manager_s_ls[i + self.c] - self.ep_manager_s_ls[i]).squeeze(0).T, self.ep_goal_ls[i].squeeze(0))
-            m_loss[i] = loss_critic_m + loss_policy_m
+            m_loss[i] = loss_critic_m ** 2 + loss_policy_m
         
         for i in range(self.c, len(self.ep_manager_s_ls)):
             s_vec = torch.FloatTensor(self.ep_state_ls[i]).to(self.device)
             loss_critic_w = G_ls[i] - self.worker.critic(s_vec)
             loss_policy_w = -loss_critic_w.detach() * torch.log(self.ep_action_prob_ls[i])
-            w_loss[i] = loss_critic_w + loss_policy_w
+            w_loss[i] = loss_critic_w ** 2 + loss_policy_w
         
         m_loss = m_loss.mean()
         w_loss = w_loss.mean()
